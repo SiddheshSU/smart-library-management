@@ -22,6 +22,14 @@ pipeline {
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    .venv/bin/pytest -q
+                '''
+            }
+        }
+
         stage('Validate Flask App') {
             steps {
                 sh '''
@@ -53,7 +61,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed and application deployed successfully.'
+            echo 'Tests passed and application deployed successfully.'
         }
 
         failure {
