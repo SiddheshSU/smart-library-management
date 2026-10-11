@@ -1,7 +1,9 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import sqlite3
 from datetime import datetime, timedelta
+import sqlite3
+
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 CORS(app)
@@ -53,16 +55,18 @@ def initialize_database():
     ).fetchone()[0]
 
     if book_count == 0:
-        sample_books = [
-            ("Deep Work", "Cal Newport", "Available"),
-            ("Clean Code", "Robert C. Martin", "Available"),
-            ("Atomic Habits", "James Clear", "On loan"),
-            ("The Design of Everyday Things", "Don Norman", "Available")
-        ]
-
         connection.executemany(
             "INSERT INTO books (title, author, status) VALUES (?, ?, ?)",
-            sample_books
+            [
+                ("Deep Work", "Cal Newport", "Available"),
+                ("Clean Code", "Robert C. Martin", "Available"),
+                ("Atomic Habits", "James Clear", "On loan"),
+                (
+                    "The Design of Everyday Things",
+                    "Don Norman",
+                    "Available"
+                )
+            ]
         )
 
     connection.commit()
@@ -71,9 +75,12 @@ def initialize_database():
 
 @app.route("/")
 def home():
-    return jsonify({
-        "message": "Smart Library Management API is running"
-    })
+    return send_from_directory(".", "index.html")
+
+
+@app.route("/<path:filename>")
+def frontend_files(filename):
+    return send_from_directory(".", filename)
 
 
 @app.route("/health")
@@ -334,6 +341,7 @@ def get_dashboard():
 
 if __name__ == "__main__":
     initialize_database()
+
     app.run(
         host="0.0.0.0",
         port=5000,
