@@ -37,15 +37,27 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                    docker rm -f smart-library-api || true
+                    docker run -d \
+                        --name smart-library-api \
+                        -p 5001:5000 \
+                        smart-library-management:latest
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Pipeline completed and application deployed successfully.'
         }
 
         failure {
-            echo 'Pipeline failed. Check the Jenkins console output.'
+            echo 'Pipeline failed. Check the console output.'
         }
     }
 }
