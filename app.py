@@ -76,6 +76,14 @@ def home():
     })
 
 
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "healthy",
+        "service": "smart-library-management"
+    })
+
+
 @app.route("/api/books", methods=["GET"])
 def get_books():
     connection = get_connection()
@@ -95,7 +103,7 @@ def add_book():
 
     title = data.get("title", "").strip()
     author = data.get("author", "").strip()
-    status = data.get("status", "Available")
+    status = data.get("status", "Available").strip()
 
     if not title or not author:
         return jsonify({
@@ -220,7 +228,9 @@ def issue_book():
         }), 400
 
     issue_date = datetime.now().strftime("%Y-%m-%d")
-    due_date = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
+    due_date = (
+        datetime.now() + timedelta(days=14)
+    ).strftime("%Y-%m-%d")
 
     connection.execute("""
         INSERT INTO loans (
@@ -324,9 +334,8 @@ def get_dashboard():
 
 if __name__ == "__main__":
     initialize_database()
-
     app.run(
         host="0.0.0.0",
         port=5000,
-        debug=True
+        debug=False
     )
