@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,8 +15,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    python3 -m pip install --upgrade pip
-                    python3 -m pip install -r requirements.txt
+                    python3 -m venv .venv
+                    .venv/bin/pip install --upgrade pip
+                    .venv/bin/pip install -r requirements.txt
                 '''
             }
         }
@@ -20,7 +25,7 @@ pipeline {
         stage('Validate Flask App') {
             steps {
                 sh '''
-                    python3 -m py_compile app.py
+                    .venv/bin/python -m py_compile app.py
                 '''
             }
         }
